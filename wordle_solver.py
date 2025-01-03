@@ -59,12 +59,16 @@ class WordleSolver:
         # The from_iterable function will turn all the words into a single list of letters, then the counter creates a dictionary with the count of each letter
         return Counter(chain.from_iterable(self.__working_list))
 
-    def __get_word_score(self, word):
-        """Scores a word based on the frequency of the letters in the word and how common the word is in the english language
+    def __get_word_score(self, word: str) -> int:
+        """Scores a word based on the frequency of the letters in the word and how common the word is in the English language.
 
-        :param word: The word to score
-        :type word: str
+        Args:
+            word (str): The word to score.
+
+        Returns:
+            int: The score of the word.
         """
+
         score = 0
 
         # Remove all duplicate letters in the word then turn it into a list (Removing duplicates avoids making recommendations with multiple e's for example)
@@ -91,11 +95,11 @@ class WordleSolver:
 
         # self.__scored_words = [self.__get_word_score(word) for word in self.__working_list]
 
-    def __gray_letter(self, letter):
-        """Filters the working list when a letter in a guess is marked as grey, meaning it doesn't exist in the puzzle word
+    def __gray_letter(self, letter: str):
+        """Filters the working list when a letter in a guess is marked as grey, meaning it doesn't exist in the puzzle word.
 
-        :param letter: Letter that doesn't exist in the puzzle word
-        :type letter: str
+        Args:
+            letter (str): Letter that doesn't exist in the puzzle word.
         """
         temp_list = []
 
@@ -109,12 +113,12 @@ class WordleSolver:
         self.__working_list.extend(temp_list)
 
     def __green_letter(self, letter, location):
-        """Filters the working list when a letter in a guess is marked as green, meaning it is in the right spot of the puzzle word
+        """
+        Filters the working list when a letter in a guess is marked as green, meaning it is in the right spot of the puzzle word.
 
-        :param letter: Letter in the correct location of the puzzle word
-        :type letter: str
-        :param location: Location of the letter in the puzzle
-        :type location: int
+        Args:
+            letter (str): Letter in the correct location of the puzzle word.
+            location (int): Location of the letter in the puzzle.
         """
         temp_list = []
 
@@ -128,10 +132,11 @@ class WordleSolver:
         self.__working_list.extend(temp_list)
 
     def __yellow_letter(self, letter, location):
-        """Filters the working list when a letter in a guess is marked as yellow, meaning it is in the puzzle word, but not in the spot guessed
+        """Filters the working list when a letter in a guess is marked as yellow, meaning it is in the puzzle word, but not in the spot guessed.
 
-        :param letter: Letter in the correct location of the puzzle word
-        :param location: Location that the letter was used
+        Args:
+            letter (str): Letter in the correct location of the puzzle word.
+            location (int): Location that the letter was used.
         """
         temp_list = []
 
@@ -146,13 +151,12 @@ class WordleSolver:
         self.__working_list.clear()
         self.__working_list.extend(temp_list)
 
-    def __refine_working_list(self, guess, result_key):
+    def __refine_working_list(self, guess: str, result_key: str):
         """Filters the working list based on a guessed word, and the result key returned from the puzzle.
 
-        :param guess: The word guessed by the user
-        :type guess: str
-        :param result_key: The key returned by the puzzle consisting of - if the letter doesn't appear in the word, g if it is in the right spot, and y if it exists in the puzzle word but is in the wrong location
-        :type result_key: str
+        Args:
+            guess (str): The word guessed by the user.
+            result_key (str): The key returned by the puzzle consisting of '-' if the letter doesn't appear in the word, 'g' if it is in the right spot, and 'y' if it exists in the puzzle word but is in the wrong location.
         """
         # Loop through all 5 letters result_key and perform the proper function
         for index in range(0, 5):
@@ -166,11 +170,14 @@ class WordleSolver:
         # Re-score the words to take into account the change in letter distribution
         self.__score_words()
 
-    def __get_recommendation(self, rec_count):
-        """Returns the top recommendations for the next guess
+    def __get_recommendation(self, rec_count: int) -> dict:
+        """Returns the top recommendations for the next guess.
 
-        :param recommendations: How many recommendations the user would like to see
-        :type recommendations: int
+        Args:
+            rec_count (int): How many recommendations the user would like to see.
+
+        Returns:
+            dict: A dictionary of the top recommended words and their scores.
         """
         return dict(
             sorted(self.__scored_words.items(), key=lambda item: item[1], reverse=True)[
@@ -179,59 +186,40 @@ class WordleSolver:
         )
 
     @property
-    def recommendation(self):
-        """Makes a recomendation for the next wordle guess
-
-        :return: The top recommendation for the next guess
-        :rtype: str
-        """
+    def recommendation(self) -> str:
+        """The best recommendation for the next guess."""
 
         return max(self.__scored_words.items(), key=operator.itemgetter(1))[0]
 
     def enter_guess(self, word: str):
-        """Enters a guess into the wordle solver
+        """Enters a guess into the wordle solver.
 
-        :param word: The word to guess
-        :type word: str
+        Args:
+            word (str): The word to guess.
         """
 
         self.__current_guess = word
         self.__guess_number += 1
 
-    def enter_result(self, result_key):
-        """Enters the result of a wordle guess and refines the working list
+    def enter_result(self, result_key: str):
+        """Enters the result of a wordle guess and refines the working list.
 
-        :param result_key: String representing the results from a wordle guess, for example:  '--g-y'
-        :type result_key: str
+        Args:
+            result_key (str): String representing the results from a wordle guess, for example: '--g-y'.
         """
 
         self.__refine_working_list(self.__current_guess, result_key)
 
     @property
-    def guess_number(self):
-        """Returns the number of guesses made in the wordle game
-
-        :return: The number of guesses made
-        :rtype: int
-        """
+    def guess_number(self) -> int:
+        """The number of guesses made so far in the wordle game."""
         return self.__guess_number
 
     @property
-    def remaining_possible_words(self):
-        """Returns the number of possible solutions to the wordle puzzle
+    def remaining_possible_words(self) -> int:
+        """The number of possible solutions remaining to the wordle puzzle."""
 
-        :return: The number of possible words remaining
-        :rtype: int
-        """
         return len(self.__working_list)
-
-    def print_key(self):
-        """Prints the key for the wordle game"""
-
-        print("The key is: ")
-        print(GREEN + "   \u2588: g (correct letter, correct spot)" + RESET)
-        print(YELLOW + "   \u2588: y (correct letter, wrong spot)" + RESET)
-        print(GREY + "   \u2588: - (letter not in the word)" + RESET)
 
 if __name__ == "__main__":
     wordle = WordleSolver()
